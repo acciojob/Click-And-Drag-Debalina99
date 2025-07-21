@@ -1,47 +1,29 @@
-const itemsContainer = document.querySelector('.items');
-    const items = document.querySelectorAll('.item');
+const slider = document.querySelector('.items');
+  let isDown = false;
+  let startX;
+  let scrollLeft;
 
-    items.forEach(item => {
-      item.style.position = 'absolute'; // allows free movement
-      const rect = item.getBoundingClientRect();
-      item.style.left = rect.left - itemsContainer.offsetLeft + 'px';
-      item.style.top = rect.top - itemsContainer.offsetTop + 'px';
+  slider.addEventListener('mousedown', (e) => {
+    isDown = true;
+    slider.classList.add('active');
+    startX = e.pageX - slider.offsetLeft;
+    scrollLeft = slider.scrollLeft;
+  });
 
-      item.addEventListener('mousedown', dragStart);
-    });
+  slider.addEventListener('mouseleave', () => {
+    isDown = false;
+    slider.classList.remove('active');
+  });
 
-    let selectedItem = null;
-    let offsetX, offsetY;
+  slider.addEventListener('mouseup', () => {
+    isDown = false;
+    slider.classList.remove('active');
+  });
 
-    function dragStart(e) {
-      selectedItem = e.target;
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-
-      document.addEventListener('mousemove', dragMove);
-      document.addEventListener('mouseup', dragEnd);
-    }
-
-    function dragMove(e) {
-      if (!selectedItem) return;
-
-      const containerRect = itemsContainer.getBoundingClientRect();
-      const itemWidth = selectedItem.offsetWidth;
-      const itemHeight = selectedItem.offsetHeight;
-
-      let x = e.clientX - containerRect.left - offsetX;
-      let y = e.clientY - containerRect.top - offsetY;
-
-      // Boundary check
-      x = Math.max(0, Math.min(x, itemsContainer.clientWidth - itemWidth));
-      y = Math.max(0, Math.min(y, itemsContainer.clientHeight - itemHeight));
-
-      selectedItem.style.left = x + 'px';
-      selectedItem.style.top = y + 'px';
-    }
-
-    function dragEnd() {
-      document.removeEventListener('mousemove', dragMove);
-      document.removeEventListener('mouseup', dragEnd);
-      selectedItem = null;
-    }
+  slider.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 2; // scroll-fast
+    slider.scrollLeft = scrollLeft - walk;
+  });
